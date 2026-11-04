@@ -1,8 +1,10 @@
 # Build History Enhancer
 
-[![Build Status](https://ci.jenkins.io/job/Plugins/job/build-history-enhancer-plugin/job/main/badge/icon)](https://ci.jenkins.io/job/Plugins/job/build-history-enhancer-plugin/job/main/)
-[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/build-history-enhancer.svg)](https://plugins.jenkins.io/build-history-enhancer)
-[![GitHub release](https://img.shields.io/github/release/jenkinsci/build-history-enhancer-plugin.svg?label=changelog)](https://github.com/jenkinsci/build-history-enhancer-plugin/releases/latest)
+[![Build](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/actions/workflows/build.yml/badge.svg)](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/actions/workflows/build.yml)
+[![Jenkins 2.580.2+](https://img.shields.io/badge/Jenkins-2.580.2%2B-D24939?logo=jenkins&logoColor=white)](https://www.jenkins.io/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-4d6270)](LICENSE.md)
+
+English · [简体中文](README.zh-CN.md)
 
 Adds four things to the build history sidebar on every job page:
 
@@ -15,13 +17,27 @@ It extends the existing Builds card instead of replacing it. Rows are still draw
 itself, so status icons, badges, progress bars, the cancel button, the row menu and the dark theme
 look and behave as usual.
 
+<p align="center">
+  <img src="docs/images/sidebar.png" alt="The Builds card with the Only my builds filter, the Started by selector, and a line under each build naming who started it" width="330">
+</p>
+
 ## Getting started
 
-Install the plugin from **Manage Jenkins → Plugins** and open any job. The controls appear under
-the search field of the Builds card. No configuration is needed.
+Install the plugin and open any job. The controls appear under the search field of the Builds
+card. No configuration is needed.
 
 For the reuse parameters shortcut, also install the [Rebuilder](https://plugins.jenkins.io/rebuild/)
 plugin.
+
+### Installing
+
+Once the plugin is in the Jenkins update center, install it from **Manage Jenkins → Plugins →
+Available plugins**.
+
+Until then, download `build-history-enhancer-<version>.hpi` from the
+[GitHub releases](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/releases),
+then upload it under **Manage Jenkins → Plugins → Advanced settings → Deploy Plugin** and restart
+Jenkins when asked.
 
 ## Features
 
@@ -31,6 +47,10 @@ Ticking **Only my builds** keeps the builds you started and hides the rest. Buil
 timer, an SCM change, an upstream job or an anonymous user are never counted as yours.
 
 The checkbox is disabled when you are not logged in.
+
+<p align="center">
+  <img src="docs/images/only-mine.png" alt="Only my builds ticked: build #5, started by an upstream job, is gone, and the Started by line is hidden because every build shown is yours" width="330">
+</p>
 
 ### Search
 
@@ -50,6 +70,10 @@ none of your builds were started by Bob.
 
 Build parameter values are not searched, so that the contents of parameters cannot be discovered
 through the search.
+
+<p align="center">
+  <img src="docs/images/search.png" alt="Searching for QA finds build #4 through its description" width="330">
+</p>
 
 ### Who started the build
 
@@ -131,7 +155,7 @@ of the Jenkins page:
 
 ## Reporting issues
 
-Report bugs and feature requests in [GitHub issues](https://github.com/jenkinsci/build-history-enhancer-plugin/issues).
+Report bugs and feature requests in [GitHub issues](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/issues).
 Report security issues to the Jenkins security team instead; see [SECURITY.md](SECURITY.md).
 
 ## Contributing

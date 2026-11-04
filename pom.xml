@@ -51,6 +51,13 @@
     <jenkins.version>${jenkins.baseline}.2</jenkins.version>
 
     <spotless.check.skip>false</spotless.check.skip>
+
+    <!-- Stricter checks than the parent's defaults, as recommended for new plugins. -->
+    <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
+    <ban-deprecated-stapler.skip>false</ban-deprecated-stapler.skip>
+    <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
+    <banObsoleteDependencyOverrides.skip>false</banObsoleteDependencyOverrides.skip>
+    <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
   </properties>
 
   <dependencyManagement>

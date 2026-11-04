@@ -124,7 +124,25 @@ Every change has to keep these true. Pull requests that touch them should say ho
 - URLs sent to the browser are root-relative, never built from the request's `Host` header.
 - `User.getById(id, false)`: looking up a user must not create one.
 
+## Continuous integration
+
+| Workflow | Runs on | Does |
+| --- | --- | --- |
+| `build.yml` | every push and pull request | `mvn verify` on Linux (JDK 25) and Windows (JDK 21) |
+| `jenkins-security-scan.yml` | pushes to `main`, pull requests | the Jenkins project's security scan |
+| `cd.yaml` | after ci.jenkins.io passes | publishes to the update center, once hosted |
+
+The `Jenkinsfile` is for ci.jenkins.io, which only builds the plugin after it is hosted in the
+`jenkinsci` organization.
+
+Actions are pinned to commit SHAs, with the tag in a comment. Dependabot proposes updates monthly.
+
 ## Releases
 
-Releases are automated (JEP-229). Merging a pull request to `main` with a label such as `bug` or
-`enhancement` publishes a new version; release notes are drafted from the pull request titles.
+Until the plugin is hosted, push a tag such as `v1.0.0`. `build.yml` then builds the plugin with
+that version and attaches `build-history-enhancer-1.0.0.hpi` to a GitHub release, for manual
+installs. That release does not reach the Jenkins update center.
+
+Once hosted, releases are automated (JEP-229): merging a pull request to `main` with a label such
+as `bug` or `enhancement` publishes a new version to the update center, and release notes are
+drafted from the pull request titles.
