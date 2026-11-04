@@ -1,0 +1,69 @@
+<!doctype html>
+<!--
+  Source of docs/images/social-preview.png, the repository's GitHub social preview (1280×640).
+  To regenerate it, render this page at 1280×640 and save a screenshot, e.g. with Playwright:
+    page.setViewportSize({ width: 1280, height: 640 }); page.goto("file://.../social-preview.html");
+    page.screenshot({ path: "docs/images/social-preview.png" });
+  The sidebar image is the README's own docs/images/sidebar.png.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1280px; height: 640px; overflow: hidden; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: #f3f5f8;
+    /* GitHub crops the edges on some surfaces; everything that matters stays 40px inside. */
+    background:
+      radial-gradient(900px 500px at 85% 20%, rgba(80, 140, 255, 0.28), transparent 60%),
+      linear-gradient(135deg, #14171d 0%, #1b2130 55%, #12161f 100%);
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 72px 0 88px;
+    gap: 56px;
+  }
+  .text { flex: 1 1 auto; }
+  .eyebrow {
+    font-size: 22px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #8fb3ff; font-weight: 600; margin-bottom: 18px;
+  }
+  h1 { font-size: 68px; line-height: 1.05; margin: 0 0 30px; font-weight: 700; letter-spacing: -0.01em; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li {
+    font-size: 27px; line-height: 1.25; margin: 0 0 16px; color: #d6dbe4;
+    display: flex; align-items: center; gap: 16px;
+  }
+  li::before {
+    content: ""; flex: none; width: 12px; height: 12px; border-radius: 50%;
+    background: #4f8cff; box-shadow: 0 0 0 5px rgba(79, 140, 255, 0.18);
+  }
+  .shot {
+    flex: none; width: 330px; height: 560px; overflow: hidden; border-radius: 18px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    background: #fff;
+  }
+  .shot { position: relative; }
+  .shot img { display: block; width: 330px; }
+  /* Fade the card's cut-off bottom edge so it reads as a crop, not a half-drawn row. */
+  .shot::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 90px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff 85%);
+  }
+</style>
+</head>
+<body>
+  <div class="text">
+    <div class="eyebrow">Jenkins plugin</div>
+    <h1>Build History<br>Enhancer</h1>
+    <ul>
+      <li>Only my builds</li>
+      <li>Search the whole history</li>
+      <li>See who started each build</li>
+      <li>Reuse a build's parameters</li>
+    </ul>
+  </div>
+  <div class="shot"><img src="../images/sidebar.png" alt=""></div>
+</body>
+</html>
