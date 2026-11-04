@@ -1,0 +1,88 @@
+<?jelly escape-by-default='true'?>
+<!--
+  Sidebar enhancement carrier.
+
+  Renders nothing visible. It emits the script and stylesheet, plus a hidden block holding the
+  controls and templates the script needs. The script moves the controls under the existing build
+  history search field; if it cannot find that field, everything stays hidden and native build
+  history is left exactly as it was.
+
+  All user-facing text is rendered here rather than in JavaScript so that it is localised by
+  Jenkins in the usual way.
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+  <st:adjunct includes="io.jenkins.plugins.bhe.sidebar" />
+
+  <div class="bhe-root jenkins-hidden"
+       data-bhe-api="${rootURL}/${it.apiUrl}"
+       data-bhe-mode="${it.initiatorMode}"
+       data-bhe-authenticated="${it.authenticated}"
+       data-bhe-page-size="${it.pageSize}">
+
+    <!-- Controls, relocated under the native search field by the script. -->
+    <div class="bhe-controls" data-bhe-role="controls">
+      <span class="jenkins-checkbox bhe-controls__mine">
+        <input type="checkbox" id="bhe-only-mine" data-bhe-role="mine"
+               disabled="${it.authenticated ? null : 'true'}" />
+        <!--
+          Same markup as core's own checkboxes: "attach-previous" and no "for". Core binds such a
+          label to the preceding input and toggles it without moving focus. Adding "for" as well
+          makes the two bindings cancel out, and a "for" label alone moves focus to the input,
+          leaving Jenkins' focus ring on after a click so the box looks neither on nor off.
+        -->
+        <label class="attach-previous"
+               title="${it.authenticated ? '%onlyMine.tooltip' : '%onlyMine.anonymous'}">${%onlyMine}</label>
+      </span>
+
+      <j:if test="${it.authenticated}">
+        <label class="bhe-controls__initiator">
+          <span class="jenkins-visually-hidden">${%initiator.label}</span>
+          <select class="jenkins-select__input bhe-controls__select" data-bhe-role="initiator-mode"
+                  title="${%initiator.label}">
+            <option value="AUTO">${%initiator.auto}</option>
+            <option value="ALWAYS">${%initiator.always}</option>
+            <option value="NEVER">${%initiator.never}</option>
+          </select>
+        </label>
+      </j:if>
+    </div>
+
+    <!-- Empty state, shown in place of the rows when a filter matches nothing. -->
+    <template data-bhe-role="empty-template">
+      <div class="bhe-empty">
+        <span class="bhe-empty__text" data-bhe-role="empty-text">${%empty.none}</span>
+        <button type="button" class="jenkins-button jenkins-button--tertiary" data-bhe-role="clear">
+          ${%empty.clear}
+        </button>
+        <button type="button" class="jenkins-button jenkins-button--tertiary jenkins-hidden"
+                data-bhe-role="search-older">
+          ${%empty.searchOlder}
+        </button>
+      </div>
+    </template>
+
+    <!-- Metadata row template. The script clones it once per build and fills in the text. -->
+    <template data-bhe-role="meta-template">
+      <div class="bhe-meta">
+        <span class="bhe-meta__icon" data-bhe-role="icon"></span>
+        <span class="bhe-meta__name" data-bhe-role="name"></span>
+      </div>
+    </template>
+
+    <!-- Icons, cloned by the script. Rendered here so they are real Jenkins symbols. -->
+    <span class="jenkins-hidden" data-bhe-role="icon-USER"><l:icon src="symbol-person" class="icon-sm" /></span>
+    <span class="jenkins-hidden" data-bhe-role="icon-TIMER"><l:icon src="symbol-timer" class="icon-sm" /></span>
+    <span class="jenkins-hidden" data-bhe-role="icon-SCM"><l:icon src="symbol-changes" class="icon-sm" /></span>
+    <span class="jenkins-hidden" data-bhe-role="icon-UPSTREAM"><l:icon src="symbol-link" class="icon-sm" /></span>
+    <span class="jenkins-hidden" data-bhe-role="icon-SYSTEM"><l:icon src="symbol-computer" class="icon-sm" /></span>
+    <span class="jenkins-hidden" data-bhe-role="icon-UNKNOWN"><l:icon src="symbol-help-circle" class="icon-sm" /></span>
+    <span class="jenkins-hidden" data-bhe-role="icon-reuse"><l:icon src="symbol-parameters" class="icon-sm" /></span>
+
+    <!-- Strings the script needs at runtime. -->
+    <span class="jenkins-hidden" data-bhe-role="i18n"
+          data-reuse-tooltip="${%reuse.tooltip}"
+          data-empty-filtered="${%empty.filtered}"
+          data-empty-scanned="${%empty.scanned}"
+          data-loading="${%loading}" />
+  </div>
+</j:jelly>

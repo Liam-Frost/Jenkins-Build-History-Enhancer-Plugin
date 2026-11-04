@@ -1,0 +1,21 @@
+# Maven
+target/
+
+# Jenkins home created by `mvn hpi:run`
+work/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local tooling
+.claude/

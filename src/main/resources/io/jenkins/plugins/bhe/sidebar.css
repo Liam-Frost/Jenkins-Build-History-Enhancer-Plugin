@@ -1,0 +1,127 @@
+/*
+ * Build History Enhancer - sidebar styling.
+ *
+ * Uses Jenkins design tokens throughout, so light and dark themes and any theme plugin that
+ * redefines them are followed without extra rules. Nothing here sets a fixed height, a background
+ * or a border: build rows keep their native shape and descriptions keep their natural height.
+ */
+
+.bhe-root:not(.bhe-root--active) {
+  display: none;
+}
+
+/* The controls sit directly under the native search field, at the card's text scale. */
+.bhe-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  margin: 0 -0.25rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.bhe-controls__mine {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.bhe-controls__mine label {
+  font-size: 0.8125rem;
+  color: var(--text-color);
+  overflow-wrap: anywhere;
+}
+
+.bhe-controls__initiator {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+}
+
+/* Deliberately small and quiet: a preference control, not a primary action. */
+.bhe-controls__select {
+  font-size: 0.75rem;
+  padding: 0.1rem 1.4rem 0.1rem 0.4rem;
+  min-height: 1.5rem;
+  max-width: 100%;
+  color: var(--text-color-secondary);
+}
+
+/*
+ * The metadata row.
+ *
+ * A grid child of the native build row, spanning the icon and content columns so it lines up with
+ * the description below it. Secondary colour and a smaller size than the build title, so the
+ * display name stays the most prominent thing in the row.
+ */
+.bhe-meta {
+  grid-column: 1 / span 2;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding-left: 2.25rem;
+  margin-top: -2px;
+  min-width: 0;
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+.bhe-meta__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.bhe-meta__icon svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0.8;
+}
+
+/* Truncates rather than pushing the sidebar sideways at narrow widths. */
+.bhe-meta__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bhe-meta__reuse {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  color: var(--text-color-secondary);
+  opacity: 0.75;
+  border-radius: var(--form-input-border-radius);
+}
+
+.bhe-meta__reuse:hover,
+.bhe-meta__reuse:focus-visible {
+  opacity: 1;
+  color: var(--link-color);
+}
+
+.bhe-meta__reuse svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Empty state, in the same place and at the same weight as core's "No builds" text. */
+.bhe-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 1.25rem 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-color-secondary);
+}
+
+.bhe-empty__text {
+  overflow-wrap: anywhere;
+}
+
+.bhe-empty .jenkins-button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  min-height: auto;
+}

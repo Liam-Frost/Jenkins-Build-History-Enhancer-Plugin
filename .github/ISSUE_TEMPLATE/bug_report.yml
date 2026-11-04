@@ -1,0 +1,42 @@
+name: Bug report
+description: Something in the build history sidebar does not work as described
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problems should not be reported here. See SECURITY.md.
+  - type: input
+    id: jenkins
+    attributes:
+      label: Jenkins version
+      placeholder: "2.580.2"
+    validations:
+      required: true
+  - type: input
+    id: plugin
+    attributes:
+      label: Plugin version
+      description: Shown in Manage Jenkins → Plugins → Installed plugins
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Setup
+      description: Job type (pipeline, freestyle, multibranch, ...), security realm (built-in, LDAP, ...), theme, and whether Rebuilder is installed
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected and what happened instead
+      description: A screenshot of the sidebar helps. Errors from the browser console too.
+    validations:
+      required: true

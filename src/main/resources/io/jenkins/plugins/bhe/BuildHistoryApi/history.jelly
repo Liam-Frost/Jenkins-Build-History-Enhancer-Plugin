@@ -1,0 +1,30 @@
+<?jelly escape-by-default='true'?>
+<!--
+  One page of filtered build history.
+
+  The rows themselves come from Jenkins' own entries view, so status icons, badges, the Keep
+  Forever lock, progress bars, cancel buttons, the row jumplist and date headings are all native.
+  This file only adds the wrapper element carrying paging state for the sidebar script.
+
+  The page model arrives as a request attribute rather than as "it": the view is served from the
+  action, which Stapler routes to and whose class loader therefore resolves this file.
+
+  l:ajax is required, exactly as in core's own HistoryPageFilter/ajaxBuildHistory.jelly. It sets up
+  the page globals (rootURL and friends) that a full page gets from l:layout. Without it, l:icon
+  cannot resolve status symbols and renders an empty img, and the row links lose their job path.
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+  <l:ajax>
+    <j:set var="historyPage" value="${request.getAttribute('bheHistoryPage')}" />
+    <div class="bhe-page"
+         data-bhe-has-more="${historyPage.hasMore}"
+         data-bhe-next-cursor="${historyPage.nextCursor}"
+         data-bhe-truncated="${historyPage.truncated}"
+         data-bhe-scanned="${historyPage.scanned}"
+         data-bhe-empty="${historyPage.noResults}">
+      <j:if test="${!historyPage.noResults}">
+        <st:include it="${historyPage.pageFilter}" page="/jenkins/widgets/HistoryPageFilter/entries.jelly" />
+      </j:if>
+    </div>
+  </l:ajax>
+</j:jelly>

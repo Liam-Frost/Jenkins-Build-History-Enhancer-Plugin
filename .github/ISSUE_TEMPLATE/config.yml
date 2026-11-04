@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security issue
+    url: https://www.jenkins.io/security/reporting/
+    about: Security issues go to the Jenkins security team, not to public issues.

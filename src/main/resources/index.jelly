@@ -1,0 +1,7 @@
+<?jelly escape-by-default='true'?>
+<div>
+  Adds initiator metadata, an "only my builds" filter, extended search and a reuse-parameters
+  shortcut to the native Jenkins build history sidebar. Filtering and paging happen on the server,
+  so a match older than the first page is still found, and rows are rendered by Jenkins' own
+  history views so status icons, badges, progress bars and the dark theme are unchanged.
+</div>
