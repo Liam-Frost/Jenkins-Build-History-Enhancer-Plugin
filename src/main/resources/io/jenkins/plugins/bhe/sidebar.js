@@ -650,19 +650,14 @@
       meta.appendChild(this.reuseLink(data.reuseUrl));
     }
 
-    // The row belongs between the build row and its description. With no description, it goes
-    // after the build's inner block rather than at the end of the row, which would put it below
-    // core's jumplist button.
+    // The row is a three-column grid: status icon, build, row-menu chevron. The line spans the first
+    // two columns, so it has to come after the chevron in the DOM; placed before it, the grid would
+    // push the chevron down onto the line's row. It goes above the description when there is one.
     var description = row.querySelector(".app-builds-container__item__description");
     if (description) {
       row.insertBefore(meta, description);
     } else {
-      var inner = row.querySelector(".app-builds-container__item__inner");
-      if (inner && inner.parentNode === row) {
-        row.insertBefore(meta, inner.nextSibling);
-      } else {
-        row.appendChild(meta);
-      }
+      row.appendChild(meta);
     }
     row.setAttribute(DECORATED_ATTR, "1");
   };
