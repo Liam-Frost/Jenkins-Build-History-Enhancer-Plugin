@@ -26,13 +26,6 @@
     </license>
   </licenses>
 
-  <developers>
-    <developer>
-      <id>Liam-Frost</id>
-      <name>Liam-Frost</name>
-    </developer>
-  </developers>
-
   <scm>
     <connection>scm:git:https://github.com/${gitHubRepo}</connection>
     <developerConnection>scm:git:https://github.com/${gitHubRepo}</developerConnection>
@@ -60,22 +53,13 @@
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>7280.ve2096dda_41b_9</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <!--
     No plugin dependencies. Rebuilder is deliberately not one: RebuildLinkService reaches it by
     class name through the uber class loader, so the plugin works whether or not Rebuilder is
-    installed. The BOM above is kept so that future dependencies get tested, compatible versions.
+    installed.
+
+    When adding the first plugin dependency, import the plugin BOM (io.jenkins.tools.bom:
+    bom-${jenkins.baseline}.x) in a dependencyManagement section and leave the version out.
   -->
   <dependencies />
 

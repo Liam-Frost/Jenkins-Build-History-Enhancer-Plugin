@@ -1,7 +1,6 @@
 # 构建历史增强（Build History Enhancer）
 
 [![Build](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/actions/workflows/build.yml/badge.svg)](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/actions/workflows/build.yml)
-[![Jenkins 2.580.2+](https://img.shields.io/badge/Jenkins-2.580.2%2B-D24939?logo=jenkins&logoColor=white)](https://www.jenkins.io/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-4d6270)](LICENSE.md)
 
 [English](README.md) · 简体中文
@@ -31,7 +30,7 @@
 
 在此之前，可以从 [GitHub Releases](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/releases) 下载 `build-history-enhancer-<版本>.hpi`，在 **Manage Jenkins → 插件管理 → Advanced settings → 部署插件** 中上传，然后按提示重启 Jenkins。
 
-（Jenkins 2.580 的中文界面只翻译了一部分，上面的菜单名按中文界面中实际显示的写。）
+（Jenkins 的中文界面只翻译了一部分，上面的菜单名按中文界面中实际显示的写。）
 
 ## 功能
 
@@ -125,7 +124,6 @@ unclassified:
 
 ## 兼容性
 
-- Jenkins 2.580.2 或更高版本
 - 自由风格项目、流水线以及其他任务类型，包括文件夹中的任务
 - 浅色和深色主题
 

@@ -1,7 +1,6 @@
 # Build History Enhancer
 
 [![Build](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/actions/workflows/build.yml/badge.svg)](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/actions/workflows/build.yml)
-[![Jenkins 2.580.2+](https://img.shields.io/badge/Jenkins-2.580.2%2B-D24939?logo=jenkins&logoColor=white)](https://www.jenkins.io/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-4d6270)](LICENSE.md)
 
 English · [简体中文](README.zh-CN.md)
@@ -142,7 +141,6 @@ of the Jenkins page:
 
 ## Compatibility
 
-- Jenkins 2.580.2 or newer
 - Freestyle projects, Pipelines and other job types, including jobs inside folders
 - Light and dark themes
 
