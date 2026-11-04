@@ -29,6 +29,12 @@ public class BuildHistoryEnhancerConfiguration extends GlobalConfiguration {
     }
 
     @NonNull
+    @Override
+    public String getDisplayName() {
+        return Messages.config_displayName();
+    }
+
+    @NonNull
     public static BuildHistoryEnhancerConfiguration get() {
         BuildHistoryEnhancerConfiguration config =
                 GlobalConfiguration.all().get(BuildHistoryEnhancerConfiguration.class);

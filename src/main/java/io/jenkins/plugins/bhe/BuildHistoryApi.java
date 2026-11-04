@@ -64,7 +64,7 @@ public class BuildHistoryApi implements Action {
     @Override
     @NonNull
     public String getDisplayName() {
-        return "Build History Enhancer";
+        return Messages.config_displayName();
     }
 
     @Override

@@ -96,6 +96,20 @@ attribute. Adding `for` breaks toggling, and a `for` label alone leaves a focus 
 **User IDs are compared with the realm's `IdStrategy`**, never `equals`. Jenkins' default realm and
 LDAP ignore case.
 
+## Translations
+
+The plugin ships English and Simplified Chinese. Every `.properties` bundle has an English base file
+and a `_zh` translation, plus `index_zh.jelly` for the plugin description.
+
+- Name translations `_zh`, never `_zh_CN`. Lookup goes `zh_TW` → `zh` → base, so `_zh` serves every
+  Chinese locale, while a `_zh_CN` file would leave Taiwan and Hong Kong users on English.
+- Add each new key to both files. `LocalizationTest` fails if the keys, or the `{0}` placeholders,
+  differ between the two.
+- Put user-facing text in the bundles only. `sidebar.js` reads its strings from attributes that
+  `index.jelly` renders on the server, so the script contains no text of its own.
+- A request without `Accept-Language` gets the server's language. That is Jetty's behaviour and
+  matches the rest of Jenkins; do not work around it in the plugin.
+
 ## Security rules
 
 Every change has to keep these true. Pull requests that touch them should say how.

@@ -430,10 +430,10 @@
     var text = node.querySelector('[data-bhe-role="empty-text"]');
     if (text) {
       if (truncated) {
-        var pattern = this.message("emptyScanned") || "No matches in the {0} most recent builds";
+        var pattern = this.message("emptyScanned") || "{0}";
         text.textContent = pattern.replace("{0}", scanned);
       } else {
-        text.textContent = this.message("emptyFiltered") || "No builds match the current filter";
+        text.textContent = this.message("emptyFiltered") || "";
       }
     }
 
@@ -678,7 +678,7 @@
     var link = document.createElement("a");
     link.className = "bhe-meta__reuse";
     link.href = url;
-    var tooltip = this.message("reuseTooltip") || "Reuse these parameters";
+    var tooltip = this.message("reuseTooltip") || "";
     link.setAttribute("tooltip", tooltip);
     link.setAttribute("aria-label", tooltip);
 
@@ -700,8 +700,7 @@
     var map = {
       reuseTooltip: "data-reuse-tooltip",
       emptyFiltered: "data-empty-filtered",
-      emptyScanned: "data-empty-scanned",
-      loading: "data-loading"
+      emptyScanned: "data-empty-scanned"
     };
     return this.i18n.getAttribute(map[key]);
   };

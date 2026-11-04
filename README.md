@@ -106,6 +106,16 @@ unclassified:
     maxScan: 2000
 ```
 
+## Languages
+
+The plugin is available in English and Simplified Chinese, and uses the same language as the rest
+of the Jenkins page:
+
+- a browser set to any Chinese (mainland, Taiwan, Hong Kong, ...) gets Simplified Chinese
+- a browser set to any other language gets English
+- a client that sends no language at all, such as a script, gets the server's language, as Jenkins
+  itself does
+
 ## Compatibility
 
 - Jenkins 2.580.2 or newer

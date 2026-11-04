@@ -78,11 +78,13 @@
     <span class="jenkins-hidden" data-bhe-role="icon-UNKNOWN"><l:icon src="symbol-help-circle" class="icon-sm" /></span>
     <span class="jenkins-hidden" data-bhe-role="icon-reuse"><l:icon src="symbol-parameters" class="icon-sm" /></span>
 
-    <!-- Strings the script needs at runtime. -->
+    <!--
+      Strings the script needs at runtime. They are resolved here, on the server, in the viewer's
+      language, so the script itself holds no user-facing text.
+    -->
     <span class="jenkins-hidden" data-bhe-role="i18n"
           data-reuse-tooltip="${%reuse.tooltip}"
           data-empty-filtered="${%empty.filtered}"
-          data-empty-scanned="${%empty.scanned}"
-          data-loading="${%loading}" />
+          data-empty-scanned="${%empty.scanned}" />
   </div>
 </j:jelly>
