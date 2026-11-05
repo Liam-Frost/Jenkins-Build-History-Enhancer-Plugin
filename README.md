@@ -28,16 +28,6 @@ card. No configuration is needed.
 For the reuse parameters shortcut, also install the [Rebuilder](https://plugins.jenkins.io/rebuild/)
 plugin.
 
-### Installing
-
-Once the plugin is in the Jenkins update center, install it from **Manage Jenkins → Plugins →
-Available plugins**.
-
-Until then, download `build-history-enhancer-<version>.hpi` from the
-[GitHub releases](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/releases),
-then upload it under **Manage Jenkins → Plugins → Advanced settings → Deploy Plugin** and restart
-Jenkins when asked.
-
 ## Features
 
 ### Only my builds

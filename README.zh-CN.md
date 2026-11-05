@@ -24,14 +24,6 @@
 
 如果要使用复用参数功能，还需要安装 [Rebuilder](https://plugins.jenkins.io/rebuild/) 插件。
 
-### 安装
-
-插件进入 Jenkins 更新中心后，在 **Manage Jenkins → 插件管理 → Available plugins** 中安装即可。
-
-在此之前，可以从 [GitHub Releases](https://github.com/Liam-Frost/Jenkins-Build-History-Enhancer-Plugin/releases) 下载 `build-history-enhancer-<版本>.hpi`，在 **Manage Jenkins → 插件管理 → Advanced settings → 部署插件** 中上传，然后按提示重启 Jenkins。
-
-（Jenkins 的中文界面只翻译了一部分，上面的菜单名按中文界面中实际显示的写。）
-
 ## 功能
 
 ### 仅我的构建
