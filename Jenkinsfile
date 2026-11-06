@@ -8,4 +8,6 @@ buildPlugin(
   configurations: [
     [platform: 'linux', jdk: 25],
     [platform: 'windows', jdk: 21],
+    // The newest Jenkins with the builds-list API the reuse column uses (see CONTRIBUTING.md).
+    [platform: 'linux', jdk: 25, jenkins: '2.589'],
 ])

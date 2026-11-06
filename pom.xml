@@ -51,6 +51,9 @@
     <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
     <banObsoleteDependencyOverrides.skip>false</banObsoleteDependencyOverrides.skip>
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
+
+    <!-- Jenkins version whose builds-list API ReuseParametersEntryDecorator is compiled against. -->
+    <bhe.newBuildsListApi.version>2.589</bhe.newBuildsListApi.version>
   </properties>
 
   <!--
@@ -75,4 +78,70 @@
       <url>https://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
+
+  <!--
+    ReuseParametersEntryDecorator extends jenkins.widgets.HistoryPageEntryDecorator, which is new in
+    Jenkins 2.589, while the plugin keeps supporting older versions. Rather than raising the baseline,
+    the two real class files are copied from jenkins-core 2.589 into target/classes so that javac can
+    compile against the genuine API, and removed again before the tests and the package. The plugin
+    therefore never ships a core class: Jenkins 2.589 and newer provide it, and older versions skip
+    the decorator, which is an optional extension. See CONTRIBUTING.md.
+  -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>new-builds-list-api</id>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jenkins-ci.main</groupId>
+                  <artifactId>jenkins-core</artifactId>
+                  <version>${bhe.newBuildsListApi.version}</version>
+                  <includes>jenkins/widgets/HistoryPageEntryDecorator*.class</includes>
+                  <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+              <overWriteReleases>true</overWriteReleases>
+              <markersDirectory>${project.build.directory}/new-builds-list-api-markers</markersDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>remove-new-builds-list-api</id>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset>
+                  <directory>${project.build.outputDirectory}</directory>
+                  <includes>
+                    <include>jenkins/**</include>
+                  </includes>
+                </fileset>
+                <fileset>
+                  <directory>${project.build.directory}/new-builds-list-api-markers</directory>
+                </fileset>
+              </filesets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

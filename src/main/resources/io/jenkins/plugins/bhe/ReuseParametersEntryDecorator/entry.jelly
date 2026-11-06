@@ -1,0 +1,18 @@
+<?jelly escape-by-default='true'?>
+<!--
+  One cell of the reuse-parameters column in the new job page's builds list. "it" is the
+  HistoryPageEntryDecorator.EntryContext core passes in; the decorator is only applicable when a
+  reuse URL exists, so the cell is never rendered empty.
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:st="jelly:stapler">
+  <st:adjunct includes="io.jenkins.plugins.bhe.ReuseParametersEntryDecorator.resources" />
+  <j:set var="reuseUrl" value="${it.decorator.reuseUrl(it.build)}" />
+  <j:if test="${reuseUrl != null}">
+    <a class="jenkins-button jenkins-button--tertiary bhe-reuse-entry"
+       href="${rootURL}/${reuseUrl}"
+       tooltip="${%reuse.tooltip}"
+       aria-label="${%reuse.tooltip}">
+      <l:icon src="symbol-parameters" />
+    </a>
+  </j:if>
+</j:jelly>

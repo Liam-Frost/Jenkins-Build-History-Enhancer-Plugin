@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    name: Build (JDK ${{ matrix.java }}, ${{ matrix.os }})
+    name: Build (JDK ${{ matrix.java }}, ${{ matrix.os }}${{ matrix.jenkins && format(', Jenkins {0}', matrix.jenkins) || '' }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -26,6 +26,10 @@ jobs:
             java: "25"
           - os: windows-latest
             java: "21"
+          # The newest Jenkins with the builds-list API the reuse column uses (see CONTRIBUTING.md).
+          - os: ubuntu-latest
+            java: "25"
+            jenkins: "2.589"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -37,16 +41,16 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
       - name: Build and test
-        run: mvn -B -ntp verify
+        run: mvn -B -ntp verify ${{ matrix.jenkins && format('-Djenkins.version={0}', matrix.jenkins) || '' }}
       - name: Keep test reports
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: test-reports-${{ matrix.os }}-jdk${{ matrix.java }}
+          name: test-reports-${{ matrix.os }}-jdk${{ matrix.java }}${{ matrix.jenkins && format('-jenkins{0}', matrix.jenkins) || '' }}
           path: target/surefire-reports/
           if-no-files-found: ignore
       - name: Keep the plugin
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && !matrix.jenkins
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: build-history-enhancer-hpi

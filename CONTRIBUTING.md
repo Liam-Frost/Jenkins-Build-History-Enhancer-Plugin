@@ -64,6 +64,8 @@ BuildSearchFilter        decides whether one build matches
 BuildInitiatorResolver   turns a build's causes into "who started it"
 RebuildLinkService       finds Rebuilder's form URL, by reflection
 FilteredHistoryWidget    feeds the matched builds through core's own history widget
+ReuseParametersEntryDecorator
+                         reuse-parameters column for the new job page (Jenkins 2.589+, optional)
 ```
 
 While no filter is active, core's `builds-card.js` runs the card as usual and the plugin only adds
@@ -95,6 +97,34 @@ attribute. Adding `for` breaks toggling, and a `for` label alone leaves a focus 
 
 **User IDs are compared with the realm's `IdStrategy`**, never `equals`. Jenkins' default realm and
 LDAP ignore case.
+
+## The new job page
+
+Jenkins weekly has an experimental new job page that users turn on in their own settings ("New job
+page"). Its builds list uses new markup, so `sidebar.js` does not recognise it and stays inactive
+there, which is deliberate. The page already shows who started each build and has its own search
+and status filter. Its status filter is a fixed list with no extension point, so "Only my builds"
+cannot be offered there.
+
+What the plugin adds on that page is the reuse-parameters column, through core's
+`HistoryPageEntryDecorator` extension point (`ReuseParametersEntryDecorator`). That class is new in
+Jenkins 2.589, while the plugin's baseline is older. To support both without raising the baseline:
+
+- `ReuseParametersEntryDecorator` is the only class that refers to the new API. Keep it that way:
+  any other class touching `HistoryPageEntryDecorator` would fail to load on older Jenkins.
+- It is `@Extension(optional = true)`. On a Jenkins without the class, loading it fails and Jenkins
+  skips it at FINE level, with no warning.
+- To compile it, `pom.xml` copies the two real class files from jenkins-core 2.589 into
+  `target/classes` (`generate-sources`) and deletes them again at `process-test-classes`. They are
+  never in the tests' classpath or the `.hpi`. The version is `bhe.newBuildsListApi.version`.
+- `NewBuildsListTest` checks both sides: on the baseline the decorator is skipped and the plugin
+  works; on 2.589 it is registered. CI runs the whole suite against 2.589 as well.
+
+When the plugin's baseline reaches a Jenkins version that has the API, delete the two plugin
+executions from `pom.xml` and the 2.589 CI job; nothing else needs to change.
+
+To try it, run `mvn hpi:run -Djenkins.version=2.589 -Dnew-job-page.flag.defaultValue=true`, which
+turns the new page on by default for everyone.
 
 ## Translations
 
@@ -128,7 +158,7 @@ Every change has to keep these true. Pull requests that touch them should say ho
 
 | Workflow | Runs on | Does |
 | --- | --- | --- |
-| `build.yml` | every push and pull request | `mvn verify` on Linux (JDK 25) and Windows (JDK 21) |
+| `build.yml` | every push and pull request | `mvn verify` on Linux (JDK 25), Windows (JDK 21), and Linux against Jenkins 2.589 |
 | `jenkins-security-scan.yml` | pushes to `main`, pull requests | the Jenkins project's security scan |
 | `cd.yaml` | after ci.jenkins.io passes | publishes to the update center, once hosted |
 
