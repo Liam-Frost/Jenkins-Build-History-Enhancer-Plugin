@@ -134,6 +134,13 @@ of the Jenkins page:
 - Freestyle projects, Pipelines and other job types, including jobs inside folders
 - Light and dark themes
 
+### Jenkins' new job page
+
+Recent weekly Jenkins versions have an experimental new job page, which users can turn on for
+themselves. That page has its own builds list, which already shows who started each build and has
+its own search and status filter. There, this plugin adds the reuse-parameters icon as a column on
+each build. The "Only my builds" filter and the plugin's search are not available on that page.
+
 ## Limitations
 
 - Builds waiting in the queue are only listed on the first page, as in stock Jenkins.

@@ -39,7 +39,10 @@ class LocalizationTest {
 
     /** Every bundle pair the plugin ships: the English base and its Chinese translation. */
     private static final String[] BUNDLES = {
-        PKG + "Messages", PKG + "HistorySidebarWidget/index", PKG + "BuildHistoryEnhancerConfiguration/config",
+        PKG + "Messages",
+        PKG + "HistorySidebarWidget/index",
+        PKG + "BuildHistoryEnhancerConfiguration/config",
+        PKG + "ReuseParametersEntryDecorator/entry",
     };
 
     @Test

@@ -1,0 +1,21 @@
+/*
+ * Reuse-parameters column of the experimental new job page's builds list.
+ * Sized and coloured like the row's other details, using theme variables only.
+ *
+ * Jenkins sets .jenkins-button { color: var(--text-color) !important }, so the colour is changed by
+ * pointing that variable at the secondary text colour while the button is idle, instead of fighting
+ * the !important. On hover and focus the button keeps Jenkins' own colour.
+ */
+.bhe-reuse-entry {
+  min-height: 2rem;
+  padding: 0 0.5rem;
+}
+
+.bhe-reuse-entry:not(:hover, :focus-visible) {
+  --text-color: var(--text-color-secondary);
+}
+
+.bhe-reuse-entry svg {
+  width: 1rem;
+  height: 1rem;
+}
