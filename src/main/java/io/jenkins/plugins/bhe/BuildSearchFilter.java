@@ -2,9 +2,14 @@ package io.jenkins.plugins.bhe;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.model.Cause;
+import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.User;
 import hudson.search.UserSearchProperty;
+import hudson.triggers.SCMTrigger;
+import hudson.triggers.TimerTrigger;
+import java.util.List;
 import java.util.Locale;
 import jenkins.model.IdStrategy;
 import jenkins.model.Jenkins;
@@ -12,8 +17,9 @@ import jenkins.model.Jenkins;
 /**
  * Decides whether a single run matches the active filters.
  *
- * <p>The two filters combine with AND semantics: with "only my builds" on, a search for someone
- * else's ID yields nothing rather than quietly widening the result set.
+ * <p>All filters combine with AND semantics: with "only my builds" on, a search for someone else's
+ * ID yields nothing rather than quietly widening the result set, and the same holds for the
+ * advanced filter's status, trigger, time and keep-forever conditions.
  *
  * <p>Build parameter values are not searched. Native Jenkins search does include them, but exposing
  * them through this plugin's API would leak parameter contents to anyone with Job/Read; see README.
@@ -23,22 +29,34 @@ public final class BuildSearchFilter {
     private final SearchQuery query;
     private final String currentUserId;
     private final boolean onlyMine;
+    private final AdvancedFilter advanced;
 
     /**
      * @param query parsed search box value
      * @param currentUserId authenticated user's Jenkins ID, or {@code null} when anonymous. Always
      *     derived server-side from the security context, never from a request parameter.
      * @param onlyMine whether the "only my builds" checkbox is on
+     * @param advanced advanced filter parameters (result, trigger, time, flags)
      */
-    public BuildSearchFilter(@NonNull SearchQuery query, @CheckForNull String currentUserId, boolean onlyMine) {
+    public BuildSearchFilter(
+            @NonNull SearchQuery query,
+            @CheckForNull String currentUserId,
+            boolean onlyMine,
+            @NonNull AdvancedFilter advanced) {
         this.query = query;
         this.currentUserId = currentUserId;
         this.onlyMine = onlyMine;
+        this.advanced = advanced;
+    }
+
+    /** Convenience constructor for tests and backward compatibility. */
+    public BuildSearchFilter(@NonNull SearchQuery query, @CheckForNull String currentUserId, boolean onlyMine) {
+        this(query, currentUserId, onlyMine, AdvancedFilter.empty());
     }
 
     /** True when no filter is active, i.e. the native widget could handle this request unchanged. */
     public boolean isPassThrough() {
-        return !onlyMine && query.isEmpty();
+        return !onlyMine && query.isEmpty() && advanced.isEmpty();
     }
 
     /**
@@ -61,6 +79,9 @@ public final class BuildSearchFilter {
         if (onlyMine && !isOwnedByCurrentUser(initiator)) {
             return false;
         }
+        if (!matchesAdvanced(run, initiator)) {
+            return false;
+        }
         if (query.isEmpty()) {
             return true;
         }
@@ -68,6 +89,107 @@ public final class BuildSearchFilter {
             return matchesInitiator(initiator, query.getUserTerm());
         }
         return matchesText(run, initiator, query.getText());
+    }
+
+    /**
+     * The advanced filter's conditions: status, trigger, time and keep-forever.
+     *
+     * <p>Cheapest checks first. The status and timestamp are fields on the run; causes may need the
+     * build record, so they come last.
+     */
+    private boolean matchesAdvanced(@NonNull Run<?, ?> run, @NonNull BuildInitiator initiator) {
+        if (advanced.isEmpty()) {
+            return true;
+        }
+        if (advanced.isKeepForeverOnly() && !run.isKeepLog()) {
+            return false;
+        }
+        Long since = advanced.getSinceTimestamp();
+        if (since != null && run.getTimeInMillis() < since) {
+            return false;
+        }
+        Long until = advanced.getUntilTimestamp();
+        if (until != null && run.getTimeInMillis() > until) {
+            return false;
+        }
+        if (!advanced.getStatuses().contains(statusOf(run))) {
+            return false;
+        }
+        if (advanced.getTriggers().size() < AdvancedFilter.Trigger.values().length) {
+            return matchesTriggers(run);
+        }
+        return true;
+    }
+
+    /** The status bucket a run falls into. A running build has no result yet, so it is BUILDING. */
+    @NonNull
+    static AdvancedFilter.Status statusOf(@NonNull Run<?, ?> run) {
+        if (run.isBuilding()) {
+            return AdvancedFilter.Status.BUILDING;
+        }
+        Result result = run.getResult();
+        if (result == Result.SUCCESS) {
+            return AdvancedFilter.Status.SUCCESS;
+        }
+        if (result == Result.UNSTABLE) {
+            return AdvancedFilter.Status.UNSTABLE;
+        }
+        if (result == Result.FAILURE) {
+            return AdvancedFilter.Status.FAILURE;
+        }
+        if (result == Result.ABORTED) {
+            return AdvancedFilter.Status.ABORTED;
+        }
+        // NOT_BUILT, or a finished build with no recorded result.
+        return AdvancedFilter.Status.NOT_BUILT;
+    }
+
+    /**
+     * A build matches when any of its causes is in a selected trigger category. A build started by
+     * a timer and later replayed by a user carries both causes and matches either choice.
+     */
+    private boolean matchesTriggers(@NonNull Run<?, ?> run) {
+        List<Cause> causes;
+        try {
+            causes = run.getCauses();
+        } catch (RuntimeException e) {
+            causes = null;
+        }
+        if (causes == null || causes.isEmpty()) {
+            return advanced.getTriggers().contains(AdvancedFilter.Trigger.OTHER);
+        }
+        for (Cause cause : causes) {
+            if (advanced.getTriggers().contains(triggerOf(cause))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @NonNull
+    static AdvancedFilter.Trigger triggerOf(@NonNull Cause cause) {
+        if (cause instanceof Cause.UserIdCause || cause instanceof Cause.UserCause) {
+            return AdvancedFilter.Trigger.USER;
+        }
+        if (cause instanceof TimerTrigger.TimerTriggerCause) {
+            return AdvancedFilter.Trigger.TIMER;
+        }
+        if (cause instanceof SCMTrigger.SCMTriggerCause) {
+            return AdvancedFilter.Trigger.SCM;
+        }
+        if (cause instanceof Cause.UpstreamCause) {
+            return AdvancedFilter.Trigger.UPSTREAM;
+        }
+        if (cause instanceof Cause.RemoteCause) {
+            return AdvancedFilter.Trigger.REMOTE;
+        }
+        return AdvancedFilter.Trigger.OTHER;
+    }
+
+    /** The advanced filter in force, so the history walk can stop at the time bound. */
+    @NonNull
+    AdvancedFilter getAdvanced() {
+        return advanced;
     }
 
     private boolean isOwnedByCurrentUser(@NonNull BuildInitiator initiator) {

@@ -5,10 +5,11 @@
 
 English · [简体中文](README.zh-CN.md)
 
-Adds four things to the build history sidebar on every job page:
+Adds five things to the build history sidebar on every job page:
 
 - an **"Only my builds"** filter
 - a **search** that covers the whole history, not just the builds already loaded
+- **advanced filters** by build result, trigger, time range and keep-forever flag
 - a line under each build showing **who or what started it**
 - a **reuse parameters** shortcut that opens a prefilled build form
 
@@ -17,7 +18,7 @@ itself, so status icons, badges, progress bars, the cancel button, the row menu 
 look and behave as usual.
 
 <p align="center">
-  <img src="docs/images/sidebar.png" alt="The Builds card with the Only my builds filter, the Started by selector, and a line under each build naming who started it" width="330">
+  <img src="docs/images/sidebar.png" alt="The Builds card with the Only my builds filter, the Started by selector, the Advanced filters button, and a line under each build naming who started it" width="330">
 </p>
 
 ## Getting started
@@ -38,7 +39,7 @@ timer, an SCM change, an upstream job or an anonymous user are never counted as 
 The checkbox is disabled when you are not logged in.
 
 <p align="center">
-  <img src="docs/images/only-mine.png" alt="Only my builds ticked: build #5, started by an upstream job, is gone, and the Started by line is hidden because every build shown is yours" width="330">
+  <img src="docs/images/only-mine.png" alt="Only my builds ticked: builds started by other users, timers and other jobs are gone, and the Started by line is hidden because every build shown is yours" width="330">
 </p>
 
 ### Search
@@ -64,9 +65,34 @@ through the search.
   <img src="docs/images/search.png" alt="Searching for QA finds build #4 through its description" width="330">
 </p>
 
-### Who started the build
+### Advanced filters
 
-A line under each build shows who or what started it:
+Clicking **Advanced filters** opens a panel with four filter groups that combine with AND semantics:
+
+| Group | Options |
+| --- | --- |
+| **Build results** | Success, Unstable, Failure, Aborted, Not built, In progress |
+| **Triggered by** | User, Timer, SCM, Upstream, Remote, Other |
+| **Time range** | All time, Last 24 h, Last 7 days, Last 30 days, Custom (from / to date-time) |
+| **Special flags** | Keep forever only |
+
+Unchecking every option in a group shows no builds rather than all of them. The panel closes
+when you click the button again; active filters remain applied and a count badge on the button
+shows how many groups are narrowed. Choices are saved per job in `localStorage` and restored
+on the next page load.
+
+<p align="center">
+  <img src="docs/images/advanced-filters.png" alt="The Advanced filters panel open, showing all four filter groups with their default state" width="330">
+</p>
+
+<p align="center">
+  <img src="docs/images/advanced-filters-active.png" alt="Advanced filters with two dimensions narrowed: Not built and In progress unchecked, time range set to Last 7 days, and the badge showing 2 active filters" width="330">
+</p>
+
+The advanced filters combine with **Only my builds** and the search field: all three apply at the
+same time and all conditions must match.
+
+### Who started the build
 
 | Started by | Shown as |
 | --- | --- |
@@ -139,7 +165,8 @@ of the Jenkins page:
 Recent weekly Jenkins versions have an experimental new job page, which users can turn on for
 themselves. That page has its own builds list, which already shows who started each build and has
 its own search and status filter. There, this plugin adds the reuse-parameters icon as a column on
-each build. The "Only my builds" filter and the plugin's search are not available on that page.
+each build. The "Only my builds" filter, the plugin's search, and the advanced filters panel are not
+available on that page.
 
 ## Limitations
 

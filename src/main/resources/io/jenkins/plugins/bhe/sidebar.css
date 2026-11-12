@@ -105,6 +105,166 @@
   height: 0.875rem;
 }
 
+/* Advanced filters toggle button */
+.bhe-controls__advanced {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  padding: 0.25rem 0.5rem;
+  min-height: 1.5rem;
+  color: var(--text-color-secondary);
+}
+
+.bhe-controls__advanced[aria-expanded="true"] {
+  color: var(--text-color);
+}
+
+.bhe-controls__advanced-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge showing active filter count */
+.bhe-controls__advanced-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background-color: var(--focus-input-border);
+  color: var(--white);
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Chevron rotates when open */
+.bhe-controls__advanced-chevron {
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+
+.bhe-controls__advanced[aria-expanded="true"] .bhe-controls__advanced-chevron {
+  transform: rotate(180deg);
+}
+
+/*
+ * Advanced panel: floating card anchored beneath the controls row.
+ *
+ * Uses the same surface variables as Jenkins' own dropdown menus, so the panel
+ * inherits theme-aware blur, border, and shadow automatically.
+ */
+.bhe-advanced {
+  position: relative;
+  z-index: 10;
+  margin-top: 0.25rem;
+}
+
+.bhe-advanced__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  backdrop-filter: contrast(1.1) saturate(2.5) blur(20px);
+  background-color: color-mix(in sRGB, var(--overlay-surface-background) 92%, transparent);
+  box-shadow: var(--overlay-surface-box-shadow);
+  border: var(--jenkins-border-width) solid var(--jenkins-border-color);
+  border-radius: var(--form-input-border-radius);
+  padding: 0.75rem;
+  overflow: hidden;
+}
+
+/* Filter groups (fieldsets) */
+.bhe-filter-group {
+  border: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+}
+
+.bhe-filter-group:last-of-type {
+  margin-bottom: 0;
+}
+
+.bhe-filter-group legend {
+  display: block;
+  width: 100%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4rem;
+  padding: 0;
+}
+
+/* Two-column grid for checkboxes */
+.bhe-checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.1rem 0.25rem;
+}
+
+.bhe-checkbox-grid .jenkins-checkbox,
+.bhe-checkbox-grid .jenkins-checkbox label {
+  font-size: 0.8125rem;
+}
+
+/* Full-width select for time range */
+.bhe-select-row {
+  display: block;
+}
+
+.bhe-advanced__select {
+  width: 100%;
+  font-size: 0.8125rem;
+}
+
+/* Custom date range inputs (shown when CUSTOM period is selected) */
+.bhe-date-range {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.bhe-date-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bhe-date-label {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+.bhe-date-input .jenkins-input {
+  font-size: 0.8125rem;
+}
+
+/* Reset button row */
+.bhe-advanced__actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: var(--jenkins-border-width) solid var(--jenkins-border-color);
+}
+
+.bhe-advanced__actions .jenkins-button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  min-height: auto;
+}
+
 /* Empty state, in the same place and at the same weight as core's "No builds" text. */
 .bhe-empty {
   display: flex;

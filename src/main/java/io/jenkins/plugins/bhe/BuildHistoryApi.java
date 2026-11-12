@@ -78,7 +78,10 @@ public class BuildHistoryApi implements Action {
      *
      * <p>Query parameters: {@code search} (free text or {@code user:<id>}), {@code mine}
      * ({@code true}/{@code false}), and {@code before} (exclusive upper bound on build number, for
-     * paging into older history).
+     * paging into older history). The advanced filter adds {@code statuses} and {@code triggers}
+     * (comma-separated {@link AdvancedFilter.Status} and {@link AdvancedFilter.Trigger} names; absent
+     * means all), {@code period} ({@code DAY}, {@code WEEK} or {@code MONTH}, measured from the
+     * server's clock) and {@code keep} ({@code true} for kept-forever builds only).
      *
      * <p>The response body is the same markup core produces for its own ajax history endpoint,
      * wrapped in a div carrying this plugin's cursor attributes.
@@ -95,7 +98,15 @@ public class BuildHistoryApi implements Action {
         boolean mine = Boolean.parseBoolean(req.getParameter("mine"));
         Integer before = parsePositiveInt(req.getParameter("before"));
 
-        BuildSearchFilter filter = new BuildSearchFilter(query, currentUserId(), mine);
+        AdvancedFilter advanced = AdvancedFilter.parse(
+                req.getParameter("statuses"),
+                req.getParameter("triggers"),
+                req.getParameter("period"),
+                req.getParameter("from"),
+                req.getParameter("to"),
+                req.getParameter("keep"));
+
+        BuildSearchFilter filter = new BuildSearchFilter(query, currentUserId(), mine, advanced);
         BuildHistoryService.Page page =
                 BuildHistoryService.search(job, filter, before, config.getPageSize(), config.getMaxScan());
 

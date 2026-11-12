@@ -75,8 +75,7 @@
     app.start();
   });
 
-  /**
-   * @param {HTMLElement} root the hidden carrier element rendered by the widget
+  /** @param {HTMLElement} root the hidden carrier element rendered by the widget
    * @param {object} dom resolved elements of the native builds card
    */
   function Enhancer(root, dom) {
@@ -102,6 +101,8 @@
     /** Guards against reacting to the synthetic input event used to wake native code. */
     this.suppressInput = false;
     this.nativeAutoRefresh = dom.page.dataset.autoRefresh;
+    /** Key used to persist advanced filter state in localStorage. */
+    this.storageKey = "bhe-filters:" + (this.api.replace(/^.*\/job\//, "job/").replace(/\/bhe\/$/, ""));
   }
 
   Enhancer.prototype.start = function () {
@@ -149,6 +150,8 @@
       }
       self.onFilterChanged();
     });
+
+    this.installAdvancedFilters();
   };
 
   /**
@@ -208,6 +211,236 @@
     });
   };
 
+  /**
+   * Wires up the advanced-filters toggle, panel, and Reset button.
+   * Restores the last saved state from localStorage, then moves the panel element out of the
+   * hidden .bhe-root carrier so it can be positioned beneath the controls row in the DOM.
+   */
+  Enhancer.prototype.installAdvancedFilters = function () {
+    // installControls() already moved [data-bhe-role="controls"] out of root and placed it
+    // right after the search box. Find it there, not in root.
+    var controls = this.dom.search.nextElementSibling;
+    if (!controls || !controls.getAttribute("data-bhe-role")) {
+      return;
+    }
+    var toggleBtn = controls.querySelector('[data-bhe-role="toggle-advanced"]');
+    var badge = controls.querySelector('[data-bhe-role="filter-badge"]');
+
+    var advancedEl = this.root.querySelector('[data-bhe-role="advanced"]');
+    if (!advancedEl || !toggleBtn) {
+      return;
+    }
+
+    // Move the advanced section out of the hidden bhe-root and position it directly after
+    // controls, so its absolutely-positioned panel floats over the build list when open.
+    controls.parentNode.insertBefore(advancedEl, controls.nextSibling);
+    advancedEl.classList.remove("jenkins-hidden");
+
+    var panel = advancedEl.querySelector('[data-bhe-role="advanced-panel"]');
+    var resetBtn = advancedEl.querySelector('[data-bhe-role="reset-filters"]');
+
+    if (!panel) {
+      return;
+    }
+
+    // Stash for methods called after setup (clearFilters, etc.)
+    this._advancedEl = advancedEl;
+    this._advancedBadge = badge;
+
+    var self = this;
+
+    // Restore saved state before wiring events so the initial badge is correct.
+    this.restoreAdvancedFilters();
+    this.updateFilterBadge(badge);
+
+    toggleBtn.addEventListener("click", function () {
+      var isOpen = toggleBtn.getAttribute("aria-expanded") === "true";
+      toggleBtn.setAttribute("aria-expanded", isOpen ? "false" : "true");
+      panel.classList.toggle("jenkins-hidden", isOpen);
+    });
+
+    // Any change inside the panel triggers a reload (debounced) instead of requiring Apply.
+    panel.addEventListener("change", function (e) {
+      // Show/hide date range when CUSTOM is selected
+      if (e.target && e.target.getAttribute("data-bhe-filter") === "period") {
+        var dateRange = panel.querySelector('[data-bhe-role="date-range"]');
+        if (dateRange) {
+          dateRange.classList.toggle("jenkins-hidden", e.target.value !== "CUSTOM");
+        }
+      }
+
+      self.saveAdvancedFilters();
+      self.updateFilterBadge(badge);
+      self.cursor = null;
+      self.cursors = [];
+      self.onFilterChanged();
+    });
+
+    if (resetBtn) {
+      resetBtn.addEventListener("click", function () {
+        self.resetAdvancedFilters(panel);
+        self.saveAdvancedFilters();
+        self.updateFilterBadge(badge);
+        self.cursor = null;
+        self.cursors = [];
+        self.onFilterChanged();
+      });
+    }
+  };
+
+  /**
+   * Counts how many advanced filter dimensions are non-default.
+   * A dimension is non-default when at least one option in a group is unchecked,
+   * or when a non-default option is selected (period / keep).
+   */
+  Enhancer.prototype.advancedFilterCount = function () {
+    var panel = this._advancedEl;
+    if (!panel) { return 0; }
+    var count = 0;
+
+    var allStatus = panel.querySelectorAll('[data-bhe-filter="status"]');
+    var anyStatusOff = Array.prototype.some.call(allStatus, function (el) { return !el.checked; });
+    if (anyStatusOff) { count++; }
+
+    var allTrigger = panel.querySelectorAll('[data-bhe-filter="trigger"]');
+    var anyTriggerOff = Array.prototype.some.call(allTrigger, function (el) { return !el.checked; });
+    if (anyTriggerOff) { count++; }
+
+    var period = panel.querySelector('[data-bhe-filter="period"]');
+    if (period && period.value !== "") {
+      // For CUSTOM, only count if at least one date is filled
+      if (period.value === "CUSTOM") {
+        var fromDate = panel.querySelector('[data-bhe-filter="from-date"]');
+        var toDate = panel.querySelector('[data-bhe-filter="to-date"]');
+        if ((fromDate && fromDate.value) || (toDate && toDate.value)) {
+          count++;
+        }
+      } else {
+        count++;
+      }
+    }
+
+    var keep = panel.querySelector('[data-bhe-filter="keep"]');
+    if (keep && keep.checked) { count++; }
+
+    return count;
+  };
+
+  Enhancer.prototype.updateFilterBadge = function (badge) {
+    if (!badge) { return; }
+    var n = this.advancedFilterCount();
+    if (n > 0) {
+      badge.textContent = String(n);
+      badge.classList.remove("jenkins-hidden");
+    } else {
+      badge.classList.add("jenkins-hidden");
+    }
+  };
+
+  /** Resets all advanced filter inputs to their default (all checked / "all time" / keep off). */
+  Enhancer.prototype.resetAdvancedFilters = function (panel) {
+    if (!panel) { return; }
+    var checks = panel.querySelectorAll('[data-bhe-filter="status"], [data-bhe-filter="trigger"]');
+    Array.prototype.forEach.call(checks, function (el) { el.checked = true; });
+
+    var period = panel.querySelector('[data-bhe-filter="period"]');
+    if (period) { period.value = ""; }
+
+    var fromDate = panel.querySelector('[data-bhe-filter="from-date"]');
+    if (fromDate) { fromDate.value = ""; }
+
+    var toDate = panel.querySelector('[data-bhe-filter="to-date"]');
+    if (toDate) { toDate.value = ""; }
+
+    var dateRange = panel.querySelector('[data-bhe-role="date-range"]');
+    if (dateRange) { dateRange.classList.add("jenkins-hidden"); }
+
+    var keep = panel.querySelector('[data-bhe-filter="keep"]');
+    if (keep) { keep.checked = false; }
+  };
+
+  /** Persists advanced filter state to localStorage. */
+  Enhancer.prototype.saveAdvancedFilters = function () {
+    try {
+      var state = this.collectAdvancedParams();
+      localStorage.setItem(this.storageKey, JSON.stringify(state));
+    } catch (e) {
+      // localStorage unavailable: not an error, filters are still applied for this session.
+    }
+  };
+
+  /** Restores advanced filter state from localStorage. */
+  Enhancer.prototype.restoreAdvancedFilters = function () {
+    try {
+      var raw = localStorage.getItem(this.storageKey);
+      if (!raw) { return; }
+      var state = JSON.parse(raw);
+      var panel = this._advancedEl;
+      if (!panel) { return; }
+
+      if (state.statuses) {
+        panel.querySelectorAll('[data-bhe-filter="status"]').forEach(function (el) {
+          el.checked = state.statuses.indexOf(el.value) !== -1;
+        });
+      }
+      if (state.triggers) {
+        panel.querySelectorAll('[data-bhe-filter="trigger"]').forEach(function (el) {
+          el.checked = state.triggers.indexOf(el.value) !== -1;
+        });
+      }
+      var period = panel.querySelector('[data-bhe-filter="period"]');
+      if (period && state.period !== undefined) { period.value = state.period; }
+
+      var fromDate = panel.querySelector('[data-bhe-filter="from-date"]');
+      if (fromDate && state.fromDate !== undefined) { fromDate.value = state.fromDate; }
+
+      var toDate = panel.querySelector('[data-bhe-filter="to-date"]');
+      if (toDate && state.toDate !== undefined) { toDate.value = state.toDate; }
+
+      // Show date range if CUSTOM is selected
+      var dateRange = panel.querySelector('[data-bhe-role="date-range"]');
+      if (dateRange && period && period.value === "CUSTOM") {
+        dateRange.classList.remove("jenkins-hidden");
+      }
+
+      var keep = panel.querySelector('[data-bhe-filter="keep"]');
+      if (keep && state.keep !== undefined) { keep.checked = !!state.keep; }
+    } catch (e) {
+      // Corrupt state: ignore and leave defaults.
+    }
+  };
+
+  /** Collects advanced filter values as a plain object (for persistence and query building). */
+  Enhancer.prototype.collectAdvancedParams = function () {
+    var panel = this._advancedEl;
+    var empty = { statuses: [], triggers: [], period: "", fromDate: "", toDate: "", keep: false };
+    if (!panel) { return empty; }
+
+    var statuses = Array.prototype.map.call(
+      panel.querySelectorAll('[data-bhe-filter="status"]'),
+      function (el) { return el.checked ? el.value : null; }
+    ).filter(Boolean);
+
+    var triggers = Array.prototype.map.call(
+      panel.querySelectorAll('[data-bhe-filter="trigger"]'),
+      function (el) { return el.checked ? el.value : null; }
+    ).filter(Boolean);
+
+    var period = panel.querySelector('[data-bhe-filter="period"]');
+    var fromDate = panel.querySelector('[data-bhe-filter="from-date"]');
+    var toDate = panel.querySelector('[data-bhe-filter="to-date"]');
+    var keep = panel.querySelector('[data-bhe-filter="keep"]');
+
+    return {
+      statuses: statuses,
+      triggers: triggers,
+      period: period ? period.value : "",
+      fromDate: fromDate ? fromDate.value : "",
+      toDate: toDate ? toDate.value : "",
+      keep: keep ? keep.checked : false
+    };
+  };
+
   /* ------------------------------------------------------------------ state */
 
   Enhancer.prototype.isMine = function () {
@@ -218,9 +451,9 @@
     return this.dom.searchInput.value.trim();
   };
 
-  /** A filter is active when the checkbox is on or the search box has text. */
+  /** A filter is active when the checkbox is on, the search box has text, or an advanced filter is active. */
   Enhancer.prototype.shouldEnhance = function () {
-    return this.isMine() || this.searchTerm() !== "";
+    return this.isMine() || this.searchTerm() !== "" || this.advancedFilterCount() > 0;
   };
 
   Enhancer.prototype.onFilterChanged = function () {
@@ -327,6 +560,37 @@
     params.set("mine", this.isMine() ? "true" : "false");
     if (this.cursor !== null) {
       params.set("before", String(this.cursor));
+    }
+
+    // Advanced filter params. A group is only sent when narrowed; absent means "all". An
+    // emptied group is sent as "NONE" so that unchecking everything shows no builds rather than
+    // all of them (the server treats an unknown name as selecting nothing).
+    var adv = this.collectAdvancedParams();
+    var panelEl = this._advancedEl;
+    var allStatus = panelEl ? panelEl.querySelectorAll('[data-bhe-filter="status"]').length : 0;
+    var allTrigger = panelEl ? panelEl.querySelectorAll('[data-bhe-filter="trigger"]').length : 0;
+    if (adv.statuses.length < allStatus) {
+      params.set("statuses", adv.statuses.length ? adv.statuses.join(",") : "NONE");
+    }
+    if (adv.triggers.length < allTrigger) {
+      params.set("triggers", adv.triggers.length ? adv.triggers.join(",") : "NONE");
+    }
+    if (adv.period === "CUSTOM") {
+      // datetime-local values are read in the browser's own time zone, then sent as epoch
+      // millis so the server needs no time zone. "To" covers the whole of its minute.
+      var fromMs = parseLocalDateTime(adv.fromDate);
+      var toMs = parseLocalDateTime(adv.toDate);
+      if (fromMs !== null) {
+        params.set("from", String(fromMs));
+      }
+      if (toMs !== null) {
+        params.set("to", String(toMs + 59999));
+      }
+    } else if (adv.period) {
+      params.set("period", adv.period);
+    }
+    if (adv.keep) {
+      params.set("keep", "true");
     }
 
     this.dom.container.classList.add("app-builds-container--loading");
@@ -466,11 +730,14 @@
     }
   };
 
-  /** Resets both filters and returns the card to core. */
+  /** Resets every filter, advanced ones included, and returns the card to core. */
   Enhancer.prototype.clearFilters = function () {
     if (this.mineBox) {
       this.mineBox.checked = false;
     }
+    this.resetAdvancedFilters(this._advancedEl);
+    this.saveAdvancedFilters();
+    this.updateFilterBadge(this._advancedBadge);
     this.dom.searchInput.value = "";
     this.cursor = null;
     this.cursors = [];
@@ -763,5 +1030,13 @@
   /** Keeps an attribute selector safe even if the server ever sends an unexpected type. */
   function cssSafe(value) {
     return String(value || "UNKNOWN").replace(/[^A-Za-z_]/g, "");
+  }
+
+  /** Parses an HTML5 datetime-local value as a Date, returning its epoch millis or null. */
+  function parseLocalDateTime(value) {
+    if (!value) { return null; }
+    // datetime-local format: "YYYY-MM-DDTHH:mm" or "YYYY-MM-DDTHH:mm:ss"
+    var date = new Date(value);
+    return !isNaN(date.getTime()) ? date.getTime() : null;
   }
 })();

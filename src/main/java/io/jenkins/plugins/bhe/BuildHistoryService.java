@@ -107,7 +107,14 @@ public final class BuildHistoryService {
         Integer nextCursor = null;
         int lastScannedNumber = -1;
 
+        Long since = filter.getAdvanced().getSinceTimestamp();
+
         while (cursor != null) {
+            if (since != null && cursor.getTimeInMillis() < since) {
+                // History runs newest first, so everything from here on is older than the time
+                // range too. Stopping here means "last 24 hours" never scans a long history.
+                break;
+            }
             if (scanned >= maxScan) {
                 // Out of budget. Report where we stopped so the caller can resume from here.
                 truncated = true;

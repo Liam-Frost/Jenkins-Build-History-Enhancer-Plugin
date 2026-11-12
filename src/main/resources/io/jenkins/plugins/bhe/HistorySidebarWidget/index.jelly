@@ -45,6 +45,81 @@
           </select>
         </label>
       </j:if>
+
+      <!-- Advanced filters toggle. The panel it reveals is rendered hidden below. -->
+      <button type="button" class="bhe-controls__advanced jenkins-button jenkins-button--tertiary"
+              data-bhe-role="toggle-advanced" aria-expanded="false" aria-controls="bhe-advanced-panel"
+              title="${%advanced.title}">
+        
+        <span class="bhe-controls__advanced-label">${%advanced.title}</span>
+        <span class="bhe-controls__advanced-badge jenkins-hidden" data-bhe-role="filter-badge">0</span>
+        <l:icon src="symbol-chevron-down" class="icon-sm bhe-controls__advanced-chevron" />
+      </button>
+    </div>
+
+    <!-- Advanced filters collapsible panel, shown when the toggle is pressed. -->
+    <div class="bhe-advanced jenkins-hidden" data-bhe-role="advanced">
+      <div id="bhe-advanced-panel" class="bhe-advanced__panel jenkins-hidden" data-bhe-role="advanced-panel">
+
+        <fieldset class="bhe-filter-group">
+          <legend>${%advanced.results.label}</legend>
+          <div class="bhe-checkbox-grid">
+            <span class="jenkins-checkbox"><input type="checkbox" value="SUCCESS" data-bhe-filter="status" checked="checked" /><label class="attach-previous">${%result.success}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="UNSTABLE" data-bhe-filter="status" checked="checked" /><label class="attach-previous">${%result.unstable}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="FAILURE" data-bhe-filter="status" checked="checked" /><label class="attach-previous">${%result.failure}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="ABORTED" data-bhe-filter="status" checked="checked" /><label class="attach-previous">${%result.aborted}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="NOT_BUILT" data-bhe-filter="status" checked="checked" /><label class="attach-previous">${%result.notBuilt}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="BUILDING" data-bhe-filter="status" checked="checked" /><label class="attach-previous">${%result.building}</label></span>
+          </div>
+        </fieldset>
+
+        <fieldset class="bhe-filter-group">
+          <legend>${%advanced.triggers.label}</legend>
+          <div class="bhe-checkbox-grid">
+            <span class="jenkins-checkbox"><input type="checkbox" value="USER" data-bhe-filter="trigger" checked="checked" /><label class="attach-previous">${%trigger.user}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="TIMER" data-bhe-filter="trigger" checked="checked" /><label class="attach-previous">${%trigger.timer}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="SCM" data-bhe-filter="trigger" checked="checked" /><label class="attach-previous">${%trigger.scm}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="UPSTREAM" data-bhe-filter="trigger" checked="checked" /><label class="attach-previous">${%trigger.upstream}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="REMOTE" data-bhe-filter="trigger" checked="checked" /><label class="attach-previous">${%trigger.remote}</label></span>
+            <span class="jenkins-checkbox"><input type="checkbox" value="OTHER" data-bhe-filter="trigger" checked="checked" /><label class="attach-previous">${%trigger.other}</label></span>
+          </div>
+        </fieldset>
+
+        <fieldset class="bhe-filter-group">
+          <legend>${%advanced.time.label}</legend>
+          <label class="bhe-select-row">
+            <span class="jenkins-visually-hidden">${%advanced.time.label}</span>
+            <select class="jenkins-select__input bhe-advanced__select" data-bhe-filter="period">
+              <option value="" selected="selected">${%time.all}</option>
+              <option value="DAY">${%time.24h}</option>
+              <option value="WEEK">${%time.7d}</option>
+              <option value="MONTH">${%time.30d}</option>
+              <option value="CUSTOM">${%time.custom}</option>
+            </select>
+          </label>
+          <div class="bhe-date-range jenkins-hidden" data-bhe-role="date-range">
+            <label class="bhe-date-input">
+              <span class="bhe-date-label">${%time.from}</span>
+              <input type="datetime-local" class="jenkins-input" data-bhe-filter="from-date" />
+            </label>
+            <label class="bhe-date-input">
+              <span class="bhe-date-label">${%time.to}</span>
+              <input type="datetime-local" class="jenkins-input" data-bhe-filter="to-date" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="bhe-filter-group">
+          <legend>${%advanced.flags.label}</legend>
+          <span class="jenkins-checkbox"><input type="checkbox" data-bhe-filter="keep" /><label class="attach-previous">${%flag.keepForever}</label></span>
+        </fieldset>
+
+        <div class="bhe-advanced__actions">
+          <button type="button" class="jenkins-button jenkins-button--tertiary" data-bhe-role="reset-filters">
+            ${%advanced.reset}
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Empty state, shown in place of the rows when a filter matches nothing. -->
