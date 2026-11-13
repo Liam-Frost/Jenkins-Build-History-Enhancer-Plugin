@@ -253,6 +253,14 @@
     this.restoreAdvancedFilters();
     this.updateFilterBadge(badge);
 
+    // If filters were saved from a previous visit, apply them now. Without this,
+    // navigating away and back would restore the visual checkbox state but leave the
+    // initial load unfiltered — the restored filters only took effect on the next
+    // user interaction.
+    if (this.advancedFilterCount() > 0) {
+      this.onFilterChanged();
+    }
+
     toggleBtn.addEventListener("click", function () {
       var isOpen = toggleBtn.getAttribute("aria-expanded") === "true";
       toggleBtn.setAttribute("aria-expanded", isOpen ? "false" : "true");
